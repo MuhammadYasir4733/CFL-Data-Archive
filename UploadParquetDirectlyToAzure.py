@@ -50,10 +50,10 @@ def main(database_name, start_date_str, end_date_str):
         # Database credentials
         username = 'sa'
         password = 'spts@3311'
-        ip = 'localhost'
-        port = '1433'
+        ip = '10.0.0.9'
+        port = '1435'
         azure_storage_connection_string='DefaultEndpointsProtocol=https;AccountName=wimetrixarchives;AccountKey=Sx0gn7kLgnrMQThX5VocxAv/hbFy4KNjf7muVvx8boySjHMadub/rquhjMcWO/ifWLMubjhfhiue+ASt4AVs3w==;EndpointSuffix=core.windows.net'
-        azure_container_name='test'
+        azure_container_name='cfl'
 
         # Create database connection
         engine = create_connection(username, password, ip, port, database_name)
