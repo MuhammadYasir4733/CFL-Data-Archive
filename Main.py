@@ -30,7 +30,7 @@ def execute_sql_query(engine, sql_query):
 # function to write data into csv files
 def export_data_to_file(df,output_dir,date,table_name_str):
     try:
-        # # Export DataFrame to CSV
+        ### Export DataFrame to CSV
         # csv_file_name = os.path.join(output_dir, f"{table_name_str}_{date.strftime('%Y_%m_%d')}.csv")
         # df.to_csv(csv_file_name, index=False)
 
