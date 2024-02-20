@@ -40,8 +40,7 @@ def upload_directory_to_blob(source_dir, storage_connection_string, container_na
                 blob_client = container_client.get_blob_client(blob_path)
                 
                 with open(local_path, "rb") as data:
-                #     blob_client.upload_blob(data, overwrite=True)
-                    print('    ----    ')
+                    blob_client.upload_blob(data, overwrite=True)
                     
                 print(f"Uploaded {local_path} to Azure Blob Storage as {blob_path}.")
     except Exception as e:
@@ -57,7 +56,7 @@ def main(database_name, start_date_str, end_date_str):
         ip = '10.0.0.9'
         port = '1435'
         azure_storage_connection_string='DefaultEndpointsProtocol=https;AccountName=wimetrixarchives;AccountKey=Sx0gn7kLgnrMQThX5VocxAv/hbFy4KNjf7muVvx8boySjHMadub/rquhjMcWO/ifWLMubjhfhiue+ASt4AVs3w==;EndpointSuffix=core.windows.net'
-        azure_container_name='test'
+        azure_container_name='cfl'
 
         # Create database connection
         engine = create_connection(username, password, ip, port, database_name)
@@ -100,6 +99,9 @@ def main(database_name, start_date_str, end_date_str):
                         # Write DataFrame to Parquet file
                         parquet_filename = os.path.join(temp_dir, file_name)
                         df.to_parquet(parquet_filename, engine='pyarrow', compression='gzip', index=None)
+
+                    # File Name
+                    print(f"File Name :  {table_name_str}_{current_date}")
 
                     # Move to the next day
                     current_date += timedelta(days=1)

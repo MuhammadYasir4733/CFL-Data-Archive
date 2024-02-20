@@ -23,7 +23,7 @@ azure_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=wi
 container_name = 'cfl'
 
 # Parquet file path
-file_path = 'CFLSooperWizer/2022/04/06/CutReport/CutReport_2022_04_06.parquet'
+file_path = '2023/03/10/PieceWiseScan/PieceWiseScan_2023_03_10.parquet'
 
 df = read_parquet_from_azure_blob(azure_storage_connection_string, container_name, file_path)
 
