@@ -1,16 +1,24 @@
+import os
+import shutil
+import json
 import pandas as pd
 import urllib.parse 
-import shutil
+from io import BytesIO
 from sqlalchemy import create_engine
 from datetime import datetime, timedelta
 from azure.storage.blob import BlobServiceClient
-from io import BytesIO
-import os
+
+# Function to read configuration from JSON file
+def read_config(filename):
+    with open(filename, 'r') as f:
+        config = json.load(f)
+    return config
 
 # Function to create connection to database
-def create_connection(username, password, ip, port, database_name):
+def create_connection(config):
     try:
-        params = urllib.parse.quote_plus(f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={ip},{port};DATABASE={database_name};UID={username};PWD={password}")
+        db_config = config['database']
+        params = urllib.parse.quote_plus(f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={db_config['ip']},{db_config['port']};DATABASE={db_config['databasename']};UID={db_config['username']};PWD={db_config['password']}")
         connection_string = f"mssql+pyodbc:///?odbc_connect={params}"
         engine = create_engine(connection_string)
         return engine
@@ -46,22 +54,22 @@ def upload_directory_to_blob(source_dir, storage_connection_string, container_na
     except Exception as e:
         print(f"Error uploading to Azure Blob Storage: {e}")
 
+
 # Main function 
-def main(database_name, start_date_str, end_date_str):
+def main(start_date_str, end_date_str):
     try:
         
-        # Database credentials
-        username = 'sa'
-        password = 'spts@3311'
-        ip = '10.0.0.9'
-        port = '1435'
-        azure_storage_connection_string='DefaultEndpointsProtocol=https;AccountName=wimetrixarchives;AccountKey=Sx0gn7kLgnrMQThX5VocxAv/hbFy4KNjf7muVvx8boySjHMadub/rquhjMcWO/ifWLMubjhfhiue+ASt4AVs3w==;EndpointSuffix=core.windows.net'
-        azure_container_name='cfl'
-
-        # Create database connection
-        engine = create_connection(username, password, ip, port, database_name)
+        # Connection Credentials
+        config = read_config('config.json')
+        
+        # Extract database connection parameters from config
+        engine = create_connection(config)
         if engine is None:
             return
+        
+        # Extract Azure storage connection parameters from config
+        azure_storage_connection_string = config['azure_storage']['connection_string']
+        azure_container_name = config['azure_storage']['container_name']
 
         # Convert start and end date strings to datetime objects
         start_date = datetime.strptime(start_date_str, "%Y-%m-%d")
@@ -74,6 +82,7 @@ def main(database_name, start_date_str, end_date_str):
         user_tables_query = "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA IN ('Essentials','Data') AND TABLE_SCHEMA <> 'sys'"
         user_tables_df = execute_sql_query(engine, user_tables_query)
 
+        # if gets tables then 
         if user_tables_df is not None:
             # Iterate over each table
             for index, row in user_tables_df.iterrows():
@@ -118,11 +127,11 @@ def main(database_name, start_date_str, end_date_str):
 
 if __name__ == "__main__":
     try:
-        database_name = input("Enter Database Name: ")
+
         start_date_input = input("Enter start date (YYYY-MM-DD): ")
         end_date_input = input("Enter end date (YYYY-MM-DD): ")
         
         # call main function
-        main(database_name, start_date_input, end_date_input)
+        main(start_date_input, end_date_input)
     except Exception as e:
         print(f"An error occurred: {e}")
