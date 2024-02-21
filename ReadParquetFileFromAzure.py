@@ -1,6 +1,13 @@
+import io
+import json
 import pandas as pd
 from azure.storage.blob import BlobServiceClient
-import io
+
+# Function to read configuration from JSON file
+def read_config(filename):
+    with open(filename, 'r') as f:
+        config = json.load(f)
+    return config
 
 def read_parquet_from_azure_blob(storage_connection_string, container_name, file_path):
     try:
@@ -18,14 +25,18 @@ def read_parquet_from_azure_blob(storage_connection_string, container_name, file
         print(f"Error reading Parquet file from Azure Blob Storage: {e}")
         return None
 
-# Connection string of blob
-azure_storage_connection_string = 'DefaultEndpointsProtocol=https;AccountName=wimetrixarchives;AccountKey=Sx0gn7kLgnrMQThX5VocxAv/hbFy4KNjf7muVvx8boySjHMadub/rquhjMcWO/ifWLMubjhfhiue+ASt4AVs3w==;EndpointSuffix=core.windows.net'
-container_name = 'cfl'
+
+# Connection Credentials
+config = read_config('config.json')
+
+# Extract Azure storage connection parameters from config
+azure_storage_connection_string = config['azure_storage']['connection_string']
+azure_container_name = config['azure_storage']['container_name']
 
 # Parquet file path
-file_path = '2023/03/10/PieceWiseScan/PieceWiseScan_2023_03_10.parquet'
+file_path = '2023/11/11/PieceWiseScan/PieceWiseScan_2023_11_11.parquet'
 
-df = read_parquet_from_azure_blob(azure_storage_connection_string, container_name, file_path)
+df = read_parquet_from_azure_blob(azure_storage_connection_string, azure_container_name, file_path)
 
 if df is not None:
     print(df)
